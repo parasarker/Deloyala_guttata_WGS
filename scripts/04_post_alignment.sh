@@ -12,7 +12,7 @@
 #$ -l mem_per_core=8G
 #$ -pe omp 8
 #$ -j y
-#$ -m bea
+#$ -m aa
 #$ -M parkersa@bu.edu
 #$ -cwd
 
