@@ -14,7 +14,7 @@ PIPELINE_DIR=$BASE_DIR/pipeline
 
 ## Data ##
 # Raw FASTQ files (pre-trimming)
-RAW_DIR=$PROJECT_DIR/00_Raw
+RAW_DIR=$PROJECT_DIR/00_raw_data
 # Trimmed FASTQ files output by fastp (input to alignment)
 TRIM_DIR=$PROJECT_DIR/02_Trimming/fastp/data
 
