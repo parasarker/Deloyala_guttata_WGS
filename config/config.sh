@@ -36,7 +36,9 @@ REF_GENOME=$REF_D01
 
 ## Alignment ##
 # Sorted, indexed BAM files for all samples (post-alignment)
-BAM_DIR=$PROJECT_DIR/03_Alignment/bam
+BAM_DIR=$PROJECT_DIR/03_Alignment/D01
+# Memory per core for alignment jobs — increase if jobs are failing
+MEM_PER_CORE=8GBAM_DIR=$PROJECT_DIR/03_Alignment/bam
 
 
 ## Cluster ##
