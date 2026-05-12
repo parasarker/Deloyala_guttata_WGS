@@ -3,8 +3,7 @@
 # Marks and removes PCR duplicates using samtools markdup.
 # Runs alignment QC with samtools flagstat and stats.
 # Run after 03B_alignment.sh, before variant calling.
-# Usage: qsub -t 1-N 04_post_alignment.sh (replace N with number of samples)
-# Note: if jobs are timing out, increase h_rt or split the task array
+# Usage: qsub -t 1-47 04_post_alignment.sh
 
 ## SCC job settings ##
 #$ -P ceeglab
@@ -31,9 +30,7 @@ LOG_DIR=$PROJECT_DIR/04_Post_Alignment/logs
 mkdir -p "$OUT_DIR" "$QC_DIR" "$LOG_DIR"
 
 ## Get sample for this task ##
-FILES=($(ls "$IN_DIR"/*.bam | sort))
-SAMPLE=${FILES[$((SGE_TASK_ID-1))]}
-BASE=$(basename "$SAMPLE" .bam)
+BASE=$(sed -n "${SGE_TASK_ID}p" "$PIPELINE_DIR/config/samples.txt")
 
 echo "[$(date)] Task $SGE_TASK_ID — Sample: $BASE"
 
