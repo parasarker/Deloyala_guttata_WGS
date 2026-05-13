@@ -1,0 +1,5 @@
+[Tue May 12 15:22:45 EDT 2026] Task 12 — Sample: DG_34
+[Tue May 12 15:22:45 EDT 2026] Checking input BAM integrity for DG_34
+[Tue May 12 15:22:45 EDT 2026] Running markdup for DG_34
+[markdup] error: no ms score tag. Please run samtools fixmate on file first.
+[markdup] error: no ms score tag. Please run samtools fixmate on file first.

@@ -1,6 +1,6 @@
 #!/bin/bash -l
 # 04_post_alignment.sh
-# Marks and removes PCR duplicates using samtools markdup.
+# Marks and removes PCR duplicates using samtools fixmate + markdup.
 # Runs alignment QC with samtools flagstat and stats.
 # Run after 03B_alignment.sh, before variant calling.
 # Usage: qsub -t 1-47 04_post_alignment.sh
@@ -12,7 +12,7 @@
 #$ -l mem_per_core=8G
 #$ -pe omp 8
 #$ -j y
-#$ -m aa
+#$ -m a
 #$ -M parkersa@bu.edu
 #$ -cwd
 
@@ -41,14 +41,25 @@ samtools quickcheck "$IN_DIR/${BASE}.bam" || {
     exit 1
 }
 
+## Fix mate information (required by markdup) ##
+echo "[$(date)] Running fixmate for $BASE"
+samtools fixmate \
+    -m \
+    -@ $THREADS \
+    "$IN_DIR/${BASE}.bam" \
+    "$OUT_DIR/${BASE}.fixmate.bam"
+
 ## Mark and remove duplicates ##
 echo "[$(date)] Running markdup for $BASE"
 samtools markdup \
     -r \
     -S \
     -@ $THREADS \
-    "$IN_DIR/${BASE}.bam" \
+    "$OUT_DIR/${BASE}.fixmate.bam" \
     "$OUT_DIR/${BASE}.markdup.bam"
+
+## Remove intermediate fixmate BAM ##
+rm "$OUT_DIR/${BASE}.fixmate.bam"
 
 ## Index the markdup BAM ##
 samtools index "$OUT_DIR/${BASE}.markdup.bam"
