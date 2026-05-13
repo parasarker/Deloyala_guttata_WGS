@@ -1,0 +1,17 @@
+
+-------------------------------------------------------------------------------
+ERROR: bcftools/1.16 requires at least one additional module.
+Run the following commands to load all of the dependencies:
+
+module load htslib/1.16
+module load bcftools/1.16
+-------------------------------------------------------------------------------
+
+Lmod has detected the following error: 
+While processing the following module(s):
+    Module fullname  Module Filename
+    ---------------  ---------------
+    bcftools/1.16    /share/module.8/bioinformatics/bcftools/1.16.lua
+
+[Wed May 13 17:14:38 EDT 2026] Starting VCF merge
+/var/spool/sge/scc-pf8/job_scripts/5611094: line 48: bcftools: command not found

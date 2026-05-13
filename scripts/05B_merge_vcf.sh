@@ -13,13 +13,15 @@
 #$ -l mem_per_core=8G
 #$ -pe omp 8
 #$ -j y
-#$ -m bea
+#$ -m a
 #$ -M parkersa@bu.edu
 #$ -cwd
+#$ -o /projectnb/ceeglab/saraparker/Deloyala_guttata_WGS/project/05_Variant_Calling/logs
 
 ## Load config and modules ##
 source /projectnb/ceeglab/saraparker/Deloyala_guttata_WGS/pipeline/config/config.sh
-module load bcftools
+module load htslib/1.16
+module load bcftools/1.16
 
 set -euo pipefail
 
@@ -46,7 +48,6 @@ done < "$PIPELINE_DIR/config/scaffolds.txt"
 
 ## Merge all scaffold VCFs ##
 bcftools concat \
-    --naive \
     --threads $THREADS \
     -O z \
     -o "$OUT_DIR/all_samples.vcf.gz" \
