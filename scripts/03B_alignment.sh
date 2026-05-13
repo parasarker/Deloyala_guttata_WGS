@@ -17,6 +17,7 @@
 #$ -m bea
 #$ -M parkersa@bu.edu
 #$ -cwd
+#$ -o /projectnb/ceeglab/saraparker/Deloyala_guttata_WGS/project/03_Alignment/logs
 
 ## Load config and modules ##
 source /projectnb/ceeglab/saraparker/Deloyala_guttata_WGS/pipeline/config/config.sh

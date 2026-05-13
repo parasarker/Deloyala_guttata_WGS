@@ -1,4 +1,0 @@
-[Tue May 12 22:32:01 EDT 2026] Task 26 — Sample: DG_72
-[Tue May 12 22:32:01 EDT 2026] Checking input BAM integrity for DG_72
-[Tue May 12 22:32:02 EDT 2026] Running fixmate for DG_72
-[bam_mating_core] ERROR: Coordinate sorted, require grouped/sorted by queryname.
