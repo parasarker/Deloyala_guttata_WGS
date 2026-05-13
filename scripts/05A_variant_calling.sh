@@ -16,6 +16,7 @@
 #$ -m a
 #$ -M parkersa@bu.edu
 #$ -cwd
+#$ -o /projectnb/ceeglab/saraparker/Deloyala_guttata_WGS/project/05_Variant_Calling/logs
 
 ## Load config and modules ##
 source /projectnb/ceeglab/saraparker/Deloyala_guttata_WGS/pipeline/config/config.sh
