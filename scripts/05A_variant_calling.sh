@@ -34,7 +34,7 @@ mkdir -p "$OUT_DIR" "$LOG_DIR"
 ## Get scaffold for this task ##
 SCAFFOLD=$(sed -n "${SGE_TASK_ID}p" "$PIPELINE_DIR/config/scaffolds.txt")
 
-echo "[$(date)] Task $SGE_TASK_ID — Scaffold: $SCAFFOLD"
+echo "[$(date)] Task $SGE_TASK_ID - Scaffold: $SCAFFOLD"
 
 ## Build BAM list ##
 BAMS=$(ls "$BAM_DIR"/*.markdup.bam | tr '\n' ' ')
@@ -53,8 +53,6 @@ bcftools call \
     -m \
     -v \
     --ploidy 2 \
-    -G - \
-    --threads $THREADS \
     -o "$OUT_DIR/${SCAFFOLD}.vcf.gz" \
     -O z
 
