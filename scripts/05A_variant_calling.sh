@@ -20,8 +20,8 @@
 
 ## Load config and modules ##
 source /projectnb/ceeglab/saraparker/Deloyala_guttata_WGS/pipeline/config/config.sh
-module load htslib
-module load bcftools
+module load htslib/1.16
+module load bcftools/1.16
 
 set -euo pipefail
 
