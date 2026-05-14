@@ -36,8 +36,9 @@ SCAFFOLD=$(sed -n "${SGE_TASK_ID}p" "$PIPELINE_DIR/config/scaffolds.txt")
 
 echo "[$(date)] Task $SGE_TASK_ID - Scaffold: $SCAFFOLD"
 
-## Build BAM list ##
+## Build BAM list and sample names file ##
 BAMS=$(ls "$BAM_DIR"/*.markdup.bam | tr '\n' ' ')
+ls "$BAM_DIR"/*.markdup.bam | xargs -I{} basename {} .markdup.bam > "$LOG_DIR/sample_names.txt"
 
 ## Run mpileup + call ##
 bcftools mpileup \
@@ -48,6 +49,7 @@ bcftools mpileup \
     -Q 30 \
     -d 500 \
     --threads $THREADS \
+    --samples-file "$LOG_DIR/sample_names.txt" \
     $BAMS | \
 bcftools call \
     -m \
