@@ -48,3 +48,7 @@ PROJECT_CODE=ceeglab
 EMAIL=parkersa@bu.edu
 # Number of threads for parallel tools
 THREADS=8
+
+## Software ##
+# GEMMA - not available as SCC module, installed manually
+GEMMA=/projectnb/ceeglab/saraparker/software/gemma
