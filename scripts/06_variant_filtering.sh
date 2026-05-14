@@ -4,7 +4,7 @@
 # Filters applied:
 #   - Biallelic SNPs only (required for GEMMA)
 #   - Site missingness 50% (--max-missing 0.5)
-#   - Sample missingness 70% (--mind 0.7)
+#   - Sample missingness 70% (--missing-indv + --remove)
 #   - MAF 0.02 (--maf 0.02)
 #   - Min depth 5 (--minDP 5)
 #   - Max depth 100 (--maxDP 100)
@@ -40,23 +40,44 @@ mkdir -p "$OUT_DIR" "$LOG_DIR"
 
 echo "[$(date)] Starting variant filtering"
 
-## Filter VCF ##
+## Step 1: Filter sites ##
+echo "[$(date)] Filtering sites"
 vcftools \
     --gzvcf "$IN_DIR/all_samples.vcf.gz" \
     --remove-indels \
     --min-alleles 2 \
     --max-alleles 2 \
     --max-missing 0.5 \
-    --mind 0.7 \
     --maf 0.02 \
     --minDP 5 \
     --maxDP 100 \
     --minQ 30 \
     --recode \
     --recode-INFO-all \
+    --out "$OUT_DIR/site_filtered"
+
+## Step 2: Identify high-missingness individuals ##
+echo "[$(date)] Calculating individual missingness"
+vcftools \
+    --vcf "$OUT_DIR/site_filtered.recode.vcf" \
+    --missing-indv \
+    --out "$OUT_DIR/missingness"
+
+## Remove individuals missing more than 70% of sites ##
+echo "[$(date)] Removing high-missingness individuals"
+awk '$5 > 0.7' "$OUT_DIR/missingness.imiss" | cut -f1 > "$OUT_DIR/remove_individuals.txt"
+echo "Individuals to remove:"
+cat "$OUT_DIR/remove_individuals.txt"
+
+vcftools \
+    --vcf "$OUT_DIR/site_filtered.recode.vcf" \
+    --remove "$OUT_DIR/remove_individuals.txt" \
+    --recode \
+    --recode-INFO-all \
     --out "$OUT_DIR/filtered"
 
 ## Compress and index ##
+echo "[$(date)] Compressing and indexing"
 bgzip "$OUT_DIR/filtered.recode.vcf"
 bcftools index "$OUT_DIR/filtered.recode.vcf.gz"
 
@@ -64,6 +85,6 @@ bcftools index "$OUT_DIR/filtered.recode.vcf.gz"
 echo "[$(date)] Running stats on filtered VCF"
 bcftools stats "$OUT_DIR/filtered.recode.vcf.gz" > "$OUT_DIR/filtered.stats.txt"
 
-echo "[$(date)] Done! Check $OUT_DIR/filtered.stats.txt for summary"
+echo "[$(date)] Done!"
 echo "[$(date)] Filtered VCF: $OUT_DIR/filtered.recode.vcf.gz"
-
+echo "[$(date)] Check $OUT_DIR/filtered.stats.txt for summary"
