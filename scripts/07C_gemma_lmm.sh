@@ -37,11 +37,12 @@ echo "[$(date)] Running GEMMA LMM"
 # -k kinship matrix
 # -o output prefix
 $GEMMA \
-    -bfile "$PLINK_DIR/guttata_pruned" \
+-bfile "$PLINK_DIR/guttata_pruned" \
     -k "$KINSHIP_DIR/kinship.cXX.txt" \
+    -c "$PIPELINE_DIR/config/covariates.txt" \
     -lmm 4 \
-    -o gemma_lmm \
+    -o gemma_lmm_covariates \
     -outdir "$OUT_DIR"
 
 echo "[$(date)] GEMMA LMM complete!"
-echo "[$(date)] Results at $OUT_DIR/gemma_lmm.assoc.txt"
+echo "[$(date)] Results at $OUT_DIR/gemma_lmm_covariates.assoc.txt"
