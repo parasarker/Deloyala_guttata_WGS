@@ -1,13 +1,13 @@
 #!/bin/bash -l
 # 11_ld_analysis.sh
-# Calculates linkage disequilibrium (r2) around Bonferroni-significant GWAS hits.
-# Uses unpruned SNPs, r2 >= 0.2, 200kb window. Keeps output small.
-# Usage: qsub 11_ld_analysis.sh
+# Computes LD (r2) of every SNP against a single focal lead SNP per scaffold
+# An extended block of high r2 around the lead SNP suggests an inversion / sweep
+## Usage: qsub 11_ld_analysis.sh
 
 ## SCC job settings ##
 #$ -P ceeglab
 #$ -N ld_analysis
-#$ -l h_rt=12:00:00
+#$ -l h_rt=6:00:00
 #$ -l mem_per_core=8G
 #$ -pe omp 8
 #$ -j y
@@ -22,38 +22,29 @@ module load plink/1.90b6.27
 set -euo pipefail
 
 PLINK_DIR=$PROJECT_DIR/07_Pop_Gen/plink
-POSITIONS=$PROJECT_DIR/07_Pop_Gen/bonferroni_positions.txt
 OUT_DIR=$PROJECT_DIR/07_Pop_Gen/ld
 mkdir -p "$OUT_DIR"
 
-# 200 kb padding either side of the hit span
-PAD=200000
+# Lead SNP per scaffold: "scaffold:position"
+# Scaffold 11 = Manhattan peak; Scaffold 27 = densest suggestive cluster + Bonferroni hit
+LEAD_SNPS=("ptg000011l_1:43289589" "ptg000027l_1:28020652")
 
-echo "[$(date)] Starting LD analysis around Bonferroni hits"
+# Window around the lead SNP to report LD over (1 Mb each side)
+WINDOW_KB=1000
 
-SCAFFOLDS=$(cut -f1 "$POSITIONS" | sort -u)
-
-for SCAFFOLD in $SCAFFOLDS; do
-    MIN=$(awk -v s="$SCAFFOLD" '$1==s {print $2}' "$POSITIONS" | sort -n | head -1)
-    MAX=$(awk -v s="$SCAFFOLD" '$1==s {print $2}' "$POSITIONS" | sort -n | tail -1)
-
-    START=$((MIN - PAD))
-    if [ "$START" -lt 1 ]; then START=1; fi
-    END=$((MAX + PAD))
-
-    echo "[$(date)] $SCAFFOLD: hits ${MIN}-${MAX}, window ${START}-${END}"
+for LEAD in "${LEAD_SNPS[@]}"; do
+    SCAFFOLD=${LEAD%%:*}
+    echo "[$(date)] LD around focal SNP $LEAD"
 
     plink \
         --bfile "$PLINK_DIR/guttata" \
         --allow-extra-chr \
-        --chr "$SCAFFOLD" \
-        --from-bp "$START" \
-        --to-bp "$END" \
+        --ld-snp "$LEAD" \
         --r2 \
         --ld-window 999999 \
-        --ld-window-kb 500 \
-        --ld-window-r2 0.2 \
-        --out "$OUT_DIR/${SCAFFOLD}_ld"
+        --ld-window-kb "$WINDOW_KB" \
+        --ld-window-r2 0 \
+        --out "$OUT_DIR/${SCAFFOLD}_focal_ld"
 done
 
-echo "[$(date)] LD analysis complete! Results at $OUT_DIR"
+echo "[$(date)] Focal-SNP LD complete! Results at $OUT_DIR"
