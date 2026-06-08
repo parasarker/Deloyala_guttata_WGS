@@ -1,9 +1,8 @@
 #!/bin/bash -l
 # 11_ld_analysis.sh
-# Calculates linkage disequilibrium (r2) around all Bonferroni-significant GWAS hits.
-# Reads bonferroni_positions.txt and computes LD in a window around hits on each scaffold.
-# Extended LD blocks may indicate chromosomal inversions or selective sweeps.
-# Run after GWAS. Usage: qsub 11_ld_analysis.sh
+# Calculates linkage disequilibrium (r2) around Bonferroni-significant GWAS hits.
+# Uses unpruned SNPs, r2 >= 0.2, 200kb window. Keeps output small.
+# Usage: qsub 11_ld_analysis.sh
 
 ## SCC job settings ##
 #$ -P ceeglab
@@ -17,37 +16,32 @@
 #$ -cwd
 #$ -o /projectnb/ceeglab/saraparker/Deloyala_guttata_WGS/project/07_Pop_Gen/logs
 
-## Load config and modules ##
 source /projectnb/ceeglab/saraparker/Deloyala_guttata_WGS/pipeline/config/config.sh
 module load plink/1.90b6.27
 
 set -euo pipefail
 
-## Directories and files ##
 PLINK_DIR=$PROJECT_DIR/07_Pop_Gen/plink
 POSITIONS=$PROJECT_DIR/07_Pop_Gen/bonferroni_positions.txt
 OUT_DIR=$PROJECT_DIR/07_Pop_Gen/ld
 mkdir -p "$OUT_DIR"
 
-# Window padding either side of the hit span on each scaffold (5 Mb)
-PAD=5000000
+# 200 kb padding either side of the hit span
+PAD=200000
 
 echo "[$(date)] Starting LD analysis around Bonferroni hits"
 
-## Get unique scaffolds from the positions file ##
 SCAFFOLDS=$(cut -f1 "$POSITIONS" | sort -u)
 
 for SCAFFOLD in $SCAFFOLDS; do
-    # Find min and max hit position on this scaffold
     MIN=$(awk -v s="$SCAFFOLD" '$1==s {print $2}' "$POSITIONS" | sort -n | head -1)
     MAX=$(awk -v s="$SCAFFOLD" '$1==s {print $2}' "$POSITIONS" | sort -n | tail -1)
 
-    # Pad the window, flooring the start at 1
     START=$((MIN - PAD))
     if [ "$START" -lt 1 ]; then START=1; fi
     END=$((MAX + PAD))
 
-    echo "[$(date)] $SCAFFOLD: hits span ${MIN}-${MAX}, LD window ${START}-${END}"
+    echo "[$(date)] $SCAFFOLD: hits ${MIN}-${MAX}, window ${START}-${END}"
 
     plink \
         --bfile "$PLINK_DIR/guttata" \
@@ -57,10 +51,9 @@ for SCAFFOLD in $SCAFFOLDS; do
         --to-bp "$END" \
         --r2 \
         --ld-window 999999 \
-        --ld-window-kb 10000 \
-        --ld-window-r2 0 \
+        --ld-window-kb 500 \
+        --ld-window-r2 0.2 \
         --out "$OUT_DIR/${SCAFFOLD}_ld"
 done
 
-echo "[$(date)] LD analysis complete!"
-echo "[$(date)] Results at $OUT_DIR (one *_ld.ld file per scaffold)"
+echo "[$(date)] LD analysis complete! Results at $OUT_DIR"
